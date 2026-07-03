@@ -19,3 +19,4 @@ So far this came to my mind
 **Advanced**
 - REST API for System Metrics - Build a small web API using Flask that exposes system metrics (CPU, RAM, disk) as JSON endpoints.
   - modules: Flask, REST concepts, JSON, psutil
+- scraping system metric for prometheus
