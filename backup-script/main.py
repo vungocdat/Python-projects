@@ -38,7 +38,7 @@ def backup_kb():
     Stop the KB service, backup the data (SQL Lite DB) and then start the KV service again
     """
     service_name = "dt-kb.service"
-    backup_name = f"{backup_dir}/kb.db.tar.gz"
+    backup_name = f"{backup_dir}/dt-kb/kb.db.tar.gz"
     file_location = "/opt/dt-kb/kb.db"
     subprocess.run(["systemctl", "stop", service_name], check=True)
     try:
