@@ -1,4 +1,9 @@
+import subprocess
+import tarfile
+
 import docker
+
+backup_dir = "/home/mecha/backups"
 
 
 def backup_vw():
@@ -8,27 +13,39 @@ def backup_vw():
     the vaulwarden again.
     """
     dk = docker.from_env()
-    backup_dir = "/home/mecha/backups/vw"
+    backup_path = f"{backup_dir}/vw"
     vaultwarden = dk.containers.get("vaultwarden")
     vw_data = dk.volumes.get("vaultwarden_vw_data")
 
     vaultwarden.stop()
 
-    dk.containers.run(
-        "alpine",
-        "tar czf /backup/vw_data.tar.gz -C /data .",
-        remove=True,
-        volumes={
-            vw_data.name: {"bind": "/data", "mode": "ro"},
-            backup_dir: {"bind": "/backup", "mode": "rw"},
-        },
-    )
-
-    vaultwarden.start()
+    try:
+        dk.containers.run(
+            "alpine",
+            "tar czf /backup/vw_data.tar.gz -C /data .",
+            remove=True,
+            volumes={
+                vw_data.name: {"bind": "/data", "mode": "ro"},
+                backup_path: {"bind": "/backup", "mode": "rw"},
+            },
+        )
+    finally:
+        vaultwarden.start()
 
 
 def backup_kb():
-    pass
+    """
+    Stop the KB service, backup the data (SQL Lite DB) and then start the KV service again
+    """
+    service_name = "dt-kb.service"
+    backup_name = "kb.db.tar.gz"
+    file_location = "/opt/dt-kb/kb.db"
+    subprocess.run(["systemctl", "stop", service_name], check=True)
+    try:
+        with tarfile.open(backup_name, "w:gz") as tar:
+            tar.add(file_location, arcname="kb.db")
+    finally:
+        subprocess.run(["systemctl", "start", service_name], check=True)
 
 
 backup_vw()
