@@ -39,7 +39,7 @@ def backup_kb():
     """
     service_name = "dt-kb.service"
     backup_name = f"{backup_dir}/dt-kb/kb.db.tar.gz"
-    file_location = "/opt/dt-kb/kb.db"
+    file_location = "/opt/dt-kb/data/kb.db"
     subprocess.run(["systemctl", "stop", service_name], check=True)
     try:
         with tarfile.open(backup_name, "w:gz") as tar:
