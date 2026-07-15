@@ -1,10 +1,11 @@
 import datetime
 import subprocess
 import tarfile
-
+import os
 import docker
 
-backup_dir = "/home/mecha/backups"
+vw_dir = '/home/mecha/backups/vw'
+kb_dir = '/home/mecha/backups/dt-kb'
 today = datetime.date.today()
 
 
@@ -15,7 +16,6 @@ def backup_vw():
     the vaulwarden again.
     """
     dk = docker.from_env()
-    backup_path = f"{backup_dir}/vw"
     vaultwarden = dk.containers.get("vaultwarden")
     vw_data = dk.volumes.get("vaultwarden_vw_data")
     custom_tar_command = f"tar czf /backup/vw_data.tar-{today}.gz -C /data ."
@@ -29,7 +29,7 @@ def backup_vw():
             remove=True,
             volumes={
                 vw_data.name: {"bind": "/data", "mode": "ro"},
-                backup_path: {"bind": "/backup", "mode": "rw"},
+                vw_dir: {"bind": "/backup", "mode": "rw"},
             },
         )
     finally:
@@ -41,7 +41,7 @@ def backup_kb():
     Stop the KB service, backup the data (SQL Lite DB) and then start the KV service again
     """
     service_name = "dt-kb.service"
-    backup_name = f"{backup_dir}/dt-kb/kb.db.tar-{today}.gz"
+    backup_name = f"{kb_dir}/kb.db.tar-{today}.gz"
     file_location = "/opt/dt-kb/data/kb.db"
 
     subprocess.run(["systemctl", "stop", service_name], check=True)
@@ -52,5 +52,20 @@ def backup_kb():
         subprocess.run(["systemctl", "start", service_name], check=True)
 
 
+def backup_cleaup(backup_dir):
+    """
+    Take path to backup files, then delete the old files an keeps only 10 backup files
+    """
+    os.chdir(backup_dir)
+    backup_files = os.listdir()
+    sorted_files = sorted(backup_files, reverse=True, key=lambda file_name: os.path.getmtime(file_name))
+    if len(sorted_files) > 10:
+        old_files = sorted_files[10:]
+        for old in old_files:
+            os.remove(old)
+
+
 backup_vw()
 backup_kb()
+backup_cleaup(vw_dir)
+backup_cleaup(kb_dir)
