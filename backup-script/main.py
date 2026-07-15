@@ -74,7 +74,7 @@ def backup_cleaup(backup_dir):
     dot_clean list ensure that the list does not contains the hidden files
     """
     backup_files = os.listdir(backup_dir)
-    dot_clean = [file for file in backup_files if not file.startswith('.')]
+    dot_clean = [os.path.join(backup_dir, file) for file in backup_files if not file.startswith('.')]
     sorted_files = sorted(dot_clean, reverse=True, key=lambda file_name: os.path.getmtime(file_name))
     if len(sorted_files) > 10:
         old_files = sorted_files[10:]
