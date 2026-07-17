@@ -6,9 +6,9 @@ Given a source file and a list of names (one per line), it creates one copy of t
 
 ## Usage
 ```
-python main.py <template_file> <name_list_file>
+python main.py <source_file> <name_list_file>
 ```
-- `template_file` — the file to duplicate.
+- `source_file` — the file to duplicate.
 - `name_list_file` — a text file with one name per line.
 
 ## Example
