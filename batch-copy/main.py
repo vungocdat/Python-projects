@@ -11,10 +11,11 @@ def create_copy(source_file, provided_list):
     file_extension = source_file.split('.')[-1]
     for name in provided_list:
         mac_txt = f'{name}.{file_extension}'
+        #mac_txt = f'{name.lower()}.{file_extension}'  # in case lower case is needed
         shutil.copyfile(source_file, mac_txt)
 
 
-if len(sys.argv) != 2:
+if len(sys.argv) != 3:      # main.py + source + file = 3
     print("Wrong number of provided arguments!\n")
     print("Usage:")
     print("python main.py <source_file> <name_list_file>")
